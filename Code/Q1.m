@@ -1,4 +1,5 @@
 %ELEC4700 Winter 2022
+%ELEC4700 Winter 2022
 %Assignment 1
 
 %Alina Jacobson     101055071
@@ -7,13 +8,15 @@ set(0,'DefaultFigureWindowStyle','docked')
 close all;
 
 %-------------------------------------------------------------------------
-%Q2
+%Q1
 %-------------------------------------------------------------------------
+
 %define constant variables 
 k_B = 1.38064852e-23;               % universal constant (Boltzman )
 mass_o = 9.10938356e-31;            % in kg is the rest mass
 m_n = 0.26*mass_o;                  % in kg is effective mass of electrons
 tempK = 300;                         % in Kelvin (temperature at room)
+
 
 
 %program that will model the random motion of the electrons. 
@@ -30,7 +33,7 @@ V_thermal = sqrt(2*k_B*tempK/m_n);       % in m/s
 %spacial step be smaller than 1/100 of the region which is 2e-7, 
 % 1/100 *2e-7 = 2e-9 / Vth
 dt_step_size = Yheight/(V_thermal*100);    %smallest step allowed
-time_step = 500;                       %Simulate for nominally 1000 timesteps.                        
+time_step = 1000;                       %Simulate for nominally 1000 timesteps.                        
 max_time = dt_step_size*time_step;
 
 
@@ -54,38 +57,26 @@ y_vel(1:particle_count) = V_thermal*sin(2*pi*randn(particle_count,1));
 
 
 x_cordprev = zeros(particle_count);                     %use the previos instances of the trajectory of the electon position
-y_cordprev = zeros(particle_count); 
+y_cordprev = zeros(particle_count);  
 
-%ADD particle positional variable for MFP is given the value of orignal
-%position variable
-xcord2=xcord;
-ycord2=ycord;
-
-%ADD - scatter
-dt_scat = dt_step_size/V_thermal;           %new variable for dt - has smae step size as dt_step_size
-Pscat_exp = 1 - exp(-dt_scat /t_mn);        %exponial probability scatter equation
-
-
-%before generating values in the loop set all values to back to zero
+%before generating values in the loop set all values to zero
 tempMaterial = 0;                     
 Vel_bounds_Avg = 0;                    
 total_temp = 0;
 tempMaterial_prev = 0;
-num_Electron_path=0;
-distance_between=0;
-distance_total=0;
 count=0;
 
+%loop through to get calculed value output up to a max threshold
 while count < max_time 
     
-    x_cordprev = xcord;
+    x_cordprev = xcord;     %initialize the prev to have the current
     y_cordprev = ycord;
     
     xcord(1:particle_count) = xcord(1:particle_count) + (dt_step_size .* x_vel);  
     ycord(1:particle_count) = ycord(1:particle_count) + (dt_step_size .* y_vel);
     
+        
     
-    %loop through to get calculed value output up to a max threshold
     %loop through to check x and y boundries in the region
     for i=1:particle_count
       
@@ -106,41 +97,15 @@ while count < max_time
        if ycord(i)<= 0
            y_vel(i) = -y_vel(i);
        end
-        
-       %ADD - scatter
-       sdev=sqrt(k_B*tempK/m_n); 
-       dt_scat = dt_step_size/V_thermal;       %new variable for dt - has smae step size as dt_step_size
-       Pscat_exp = 1 - exp(-dt_scat /t_mn);    %exponial probability scatter equation
+   
+ 
+    end
     
-       
-       start_scatter = Pscat_exp > randn(particle_count,1); %check condition to start scatter
-       xcord = xcord+x_vel*dt_step_size;
-       ycord = ycord+y_vel*dt_step_size;
-       x_vel(start_scatter)=sdev*randn(sum(start_scatter),1);
-       y_vel(start_scatter)=sdev*randn(sum(start_scatter),1);
-       
-       
-        %ADD the MFP   
-        %add the sum of the scatter to find the value of the number of path 
-        num_Electron_path = num_Electron_path + sum(start_scatter); 
-        distance_between = sqrt((xcord2(start_scatter)-xcord(start_scatter)).^2 + ((ycord2(start_scatter)-ycord(start_scatter)).^2));
-        %add the  sum of the distance between particles to the total distance 
-        distance_total = distance_total + sum(distance_between);
-        xcord2(start_scatter) = xcord(start_scatter);      
-        
-    end   
-    
-        %calculate the MFP values
-        mean_fp_frm_plot = sum(distance_between());  %sum of the distance values in the matrix
-        mean_fp_frm_plot_avg = distance_total /num_Electron_path;
-        t_mn_frm_plot = mean_fp_frm_plot_avg/V_thermal;
-        
-        
-        %Store valvue of the previos and current positions- for plotting
-%       x = [x_cordprev(i) xcord(i)];   
-%       y = [y_cordprev(i) ycord(i)]; 
+          %Store valvue of the previos and current positions- for plotting
+%         x = [x_cordprev(i) xcord(i)];   
+%         y = [y_cordprev(i) ycord(i)]; 
 
-        %do the temperature calc  an check bounds
+       %do the temperature calc  an check bounds
        Vel_bounds_Avg = mean(sqrt(x_vel.^2 + y_vel.^2));       
        total_temp = (m_n*Vel_bounds_Avg.^2)/(2*k_B);
      
@@ -148,7 +113,7 @@ while count < max_time
         hold on
         subplot(2,1,1)
         axis([0 Xlength 0 Yheight]);
-        title(['Q2 Electron collision scatter  (' ,num2str(particle_toPlot), ' electrons)']);
+        title(['Q1 Electron Modelling   (' ,num2str(particle_toPlot), ' electrons)']);
         xlabel('xVelocity (nm)');
         ylabel('yVeloncity (nm)');
         
@@ -160,7 +125,7 @@ while count < max_time
            plot([x_cordprev(z) xcord(z)],[y_cordprev(z) ycord(z)], '-', 'markers', 1, 'color', colors(z,:), 'MarkerFaceColor', colors(z,:));
            
         end
-       
+        
         
        Temp = [tempMaterial_prev total_temp];
        Time = [(count-dt_step_size) count];
@@ -177,18 +142,11 @@ while count < max_time
         tempMaterial_prev =total_temp; %set the prev temp as the new temp
         total_temp =0;                  %then clear for new value
      
-       pause(0.001); 
+       pause(0.0001); 
        count=count+dt_step_size;        %increment the count one step     
+        
+     
 
 end   
+ 
 
-%ADD PLOT the distribution of speeds among the particles at a temperature
-figure (2);
-nbins=25;
-Vel_bounds_Avg= sqrt(x_vel.^2 + y_vel.^2);
-
-%the distribution of speeds among the particles at a temperature
-histogram(Vel_bounds_Avg,nbins);
-title(' Q2 - Maxwell Boltzman Dist')
-xlabel('Velocity of ELectrons (all directions)(m/s)')
-ylabel('Amount of Electrons ')  

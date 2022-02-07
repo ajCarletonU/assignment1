@@ -76,7 +76,7 @@ for i = 1:particle_count
     % top box defined x-dimensions from 0.8 to 1.2 and y-dimensions from 0.6 to 1
     if xcord(i) > 0.6e-7 && xcord(i) < 1.2e-7 && ycord(i) > 0.6e-7
         
-        xcord(i) = randi(r1)/10e-7;
+        xcord(i) = randi(r1)/10e-7; %divide th by the wide of the plot region
         ycord(i) = randi(r2)/10e-7;
     end
 
@@ -89,17 +89,11 @@ for i = 1:particle_count
     
     
 end
-        %ADD electron density plot - using hist3 function to plot
-        figure (2);
-        bin1=30;
-        bin2=20;
-        e_v=[xcord',ycord'];
-        e_density= hist3(e_v, [bin1 bin2]);
-        title('Q3 - Electron Density Plot ')
+        
        
 
 
-%before generating values in the loop set all values to back to zero
+%before generating values in the loop set all values  to zero
 tempMaterial = 0;                     
 Vel_bounds_Avg = 0;                    
 total_temp = 0;
@@ -112,7 +106,7 @@ count=0;
 
 
 
-
+%loop through to get calculed value output up to a max threshold
 while count < max_time 
     
     x_cordprev = xcord;
@@ -122,7 +116,7 @@ while count < max_time
     ycord(1:particle_count) = ycord(1:particle_count) + (dt_step_size .* y_vel);
     
     
-    %loop through to get calculed value output up to a max threshold
+    
     %loop through to check x and y boundries in the region
     for i=1:particle_count
       
@@ -252,7 +246,13 @@ while count < max_time
 
 end   
 
-
+%ADD electron density plot - using hist3 function to plot
+figure (2);
+bin1=30;
+bin2=20;
+e_v=[xcord',ycord'];
+e_density= hist3(e_v, [bin1 bin2]);
+title('Q3 - Electron Density Plot ')
 
 % %ADD PLOT the distribution of speeds among the particles at a temperature
 % figure (2);
